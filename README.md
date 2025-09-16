@@ -15,10 +15,9 @@ This repo intentionally contains only:
 > The binaries are **not** committed to git history; they are uploaded as Release assets.
 
 ---
+### Downloads
 
-## Downloads
-
-👉 Get the latest prebuilt bundle from **GitHub Releases → Latest**.
+👉 Get the latest prebuilt bundle from **GitHub Releases → Latest** [Go to bwming github](https://github.com/bwmining/nockpool-addons/releases).
 
 - Example asset name: `nockpool-addons_v0.1.0_linux-x86_64_zen5.tar.gz`
 - Inside the tarball:
@@ -35,47 +34,50 @@ sha256sum -c SHA256SUMS
 
 ---
 
-## Quick start with `nockpool-miner`
+### Install
 
-Upstream miner: <https://github.com/SWPSCO/nockpool-miner>
+You can download the prebuilt binaries in the release tab. The Linux bins are SLSA3 attested -- we recommend [verifying](https://github.com/slsa-framework/slsa-verifier).
 
-### 1) Build or download `nockpool-miner`
-
-```bash
-git clone https://github.com/SWPSCO/nockpool-miner
-cd nockpool-miner
-cargo build --release
-# miner binary path example: ./target/release/nockpool-miner
-```
+### Run
 
 ### 2) Place the bundle next to the miner (or anywhere you prefer)
 
 ```bash
-mkdir -p ~/bw-miner && cd ~/bw-miner
+cd nockpool-miner # OR where you installed nockpool-miner
+
+mkdir -p addons && cd addons
 # download release tar.gz here, then:
-tar -xzf nockpool-addons_v0.1.0_linux-x86_64_zen5.tar.gz
+tar -xzf nockpool-addons_v0.1.3_linux-amd_zen4_x86_64.tar.gz
 ls -1
 # → miner.jam, libzkvm_jetpack.so, README.md, LICENSE
 ```
 
 ### 3) Run with the provided helper script (recommended)
 
-Use `scripts/nockpool-run.sh` (provided below in this repo) to launch the miner with sane defaults.
+Use `nockpool-run.sh` (provided in nockpool-miner) to launch the miner with sane defaults.
+
+
+> NOTE: ONLY if you didn't extract file next to the miner binary.
+The script exports `MINER_JAM_PATH` where MINER_JAM_PATH is the full path to the miner.jam file and ensures `LIB_DIR` contains the directory of `libzkvm_jetpack.so` 
+
 
 ```bash
-# copy the script to your working dir
-cp scripts/nockpool-run.sh ./
 chmod +x ./nockpool-run.sh
+
+# HELP for full options possibility
+./nockpool-run.sh
 
 # start in foreground
 ./nockpool-run.sh start \
+  --max-threads 16 --jam addons/miner.jam --lib-dir ./addons \
   --account-token nockacct_************************ \
-  --threads 16
+  
 
 # start in background (daemon)
 ./nockpool-run.sh start --daemon \
-  --account-token nockacct_************************ \
-  --threads 16
+  --max-threads 16 --jam ./addons/miner.jam --lib-dir ./addons \
+  --account-token nockacct_************************
+
 
 # check status
 ./nockpool-run.sh status
@@ -85,18 +87,6 @@ chmod +x ./nockpool-run.sh
 
 # stop
 ./nockpool-run.sh stop
-```
-
-> The script exports `MINER_JAM_PATH` and ensures `LD_LIBRARY_PATH` contains the directory of `libzkvm_jetpack.so`.
-
-### 4) Or run the miner directly (manual)
-
-```bash
-export MINER_JAM_PATH="$(pwd)/miner.jam"
-export LD_LIBRARY_PATH="$(pwd):${LD_LIBRARY_PATH:-}"
-/path/to/nockpool-miner \
-  --max-threads 16 \
-  --account-token nockacct_************************
 ```
 
 ---
